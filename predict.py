@@ -6,11 +6,15 @@ import sklearn
 app = Flask(__name__)
 print(__name__)
 
+@app.route("/")
+def hello_world():
+    return "<p>Hello World!</p>"
+
 model_pickle = open('./artefacts/classifier.pkl', 'rb')
 clf = pickle.load(model_pickle)
 
 
-@app.route('/predict', method=['POST'])
+@app.route('/predict', methods=['POST'])
 def prediction():
     loan_req = request.get_json ()
     if loan_req['Gender']=='Male':
@@ -32,3 +36,10 @@ def prediction():
     LoanAmount = loan_req['LoanAmount']
     
     result = clf.predict([[Gender, Married, ApplicantIncome, LoanAmount, Credit_History]])
+    
+    if result == 0:
+        pred = 'Rejected'
+    else:
+        pred = 'Approved'
+    
+    return{'loan_approval_status': pred}
